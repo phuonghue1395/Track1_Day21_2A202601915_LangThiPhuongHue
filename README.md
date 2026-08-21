@@ -1,13 +1,13 @@
 # Báo Cáo Capstone AI Evaluation — VLearn AI Tutor
 **Nhóm**: Bietdoibongdem888  
-**Học viên**: Nguyễn Quang Huy (Technical Lead · MHV: 2A202601873)  
-**Thành viên phối hợp**: Lang Thị Phương Huệ (SME Lead)
+**Học viên**: Lang Thị Phương Huệ (SME Lead · MHV: 2A202601915)  
+**Thành viên phối hợp**: Nguyễn Quang Huy (Technical Lead · MHV: 2A202601873)
 
 ---
 
 ## 1. Sơ đồ Sáu Phase & Artifacts Tương Ứng
 
-Quy trình đánh giá hệ thống AI (AI Evaluation) được triển khai qua 6 phase chặt chẽ, tạo ra các artifact minh chứng lưu tại thư mục [`deliverables/evidence/`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/evidence/):
+Quy trình đánh giá hệ thống AI (AI Evaluation) được triển khai qua 6 phase chặt chẽ, tạo ra các artifact minh chứng lưu tại thư mục [`deliverables/evidence/`](file:///Users/langthiphuonghue/Track1_Day21_2A202601915_LangThiPhuongHue/deliverables/evidence/):
 
 ```mermaid
 graph TD
@@ -20,27 +20,30 @@ graph TD
 
 | Phase | Mô tả công việc | Artifact sinh ra | Link dẫn chứng |
 |---|---|---|---|
-| **Phase 1** | Thiết kế Ma trận Coverage (3 dimensions, 13 scenarios) và soạn dataset | `dataset-v1.jsonl` | [`dataset-v1.jsonl`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/evidence/dataset-v1.jsonl) |
-| **Phase 2** | Chạy tutor và chấm nhãn độc lập (An vs Bình vs Chi) để đo đồng thuận | `labels.csv` | [`labels.csv`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/evidence/labels.csv) |
-| **Phase 3** | Xây dựng Rubric đánh giá nhị phân và bản đồ Routing | `REPORT.md` (Mục 3 & 4) | [`REPORT.md`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/REPORT.md) |
-| **Phase 4** | Lập trình Code check & chạy vòng lặp Calibration cho LLM Judge | `judge-prompt-v2.md`, `verdicts-v2.jsonl` | [Folder evidence](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/evidence/) |
-| **Phase 5** | Phân tích Scorecard theo slice, tính toán Latency/Cost và kiểm tra Gate | `REPORT.md` (Mục 6) | [`REPORT.md#6-scorecard--gate`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/REPORT.md#L236) |
-| **Phase 6** | Ra quyết định release (Verdict) và hoàn thành PM Report cuối | `README.md`, `REPORT.md` (Mục 7) | [`REPORT.md#7-verdict--report-cuoi`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/REPORT.md#L273) |
+| **Phase 1** | Thiết kế Ma trận Coverage (3 dimensions, 13 scenarios) và soạn dataset | `dataset-v1.jsonl` | [`dataset-v1.jsonl`](file:///Users/langthiphuonghue/Track1_Day21_2A202601915_LangThiPhuongHue/deliverables/evidence/dataset-v1.jsonl) |
+| **Phase 2** | Chạy tutor và chấm nhãn độc lập (Hue vs Huy) để đo đồng thuận | `labels.csv` | [`labels.csv`](file:///Users/langthiphuonghue/Track1_Day21_2A202601915_LangThiPhuongHue/deliverables/evidence/labels.csv) |
+| **Phase 3** | Xây dựng Rubric đánh giá nhị phân và bản đồ Routing | `REPORT.md` (Mục 3 & 4) | [`REPORT.md`](file:///Users/langthiphuonghue/Track1_Day21_2A202601915_LangThiPhuongHue/deliverables/REPORT.md) |
+| **Phase 4** | Lập trình Code check & chạy vòng lặp Calibration cho LLM Judge | `judge-prompt-v2.md`, `verdicts-v2.jsonl` | [Folder evidence](file:///Users/langthiphuonghue/Track1_Day21_2A202601915_LangThiPhuongHue/deliverables/evidence/) |
+| **Phase 5** | Phân tích Scorecard theo slice, tính toán Latency/Cost và kiểm tra Gate | `REPORT.md` (Mục 6) | [`REPORT.md#6-scorecard--gate`](file:///Users/langthiphuonghue/Track1_Day21_2A202601915_LangThiPhuongHue/deliverables/REPORT.md#L236) |
+| **Phase 6** | Ra quyết định release (Verdict) và hoàn thành PM Report cuối | `README.md`, `REPORT.md` (Mục 7) | [`REPORT.md#7-verdict--report-cuoi`](file:///Users/langthiphuonghue/Track1_Day21_2A202601915_LangThiPhuongHue/deliverables/REPORT.md#L273) |
 
 ---
 
-## 2. Đóng góp Cá nhân (Nguyễn Quang Huy)
+## 2. Đóng góp Cá nhân (Lang Thị Phương Huệ)
 
-Với tư cách là **Technical Lead** của nhóm, tôi chịu trách nhiệm chính về các giải pháp kỹ thuật, hạ tầng đánh giá tự động và calibration:
-1.  **Thiết kế và Triển khai Code check tự động (`eval/code_checks.py`)**:
-    *   Tự viết 2 kiểm thử nghiệp vụ nâng cao: `check_out_of_scope_empty_sources` (ràng buộc sources rỗng khi từ chối) và `check_followup_count` (ràng buộc chính xác 3 câu followup).
-    *   Phát hiện lỗi text parser của giáo trình bị interleave (tráo thứ tự từ) do layout slide thiết kế 2 cột (như slide `s65`). Tự sửa đổi hàm `check_quote_verbatim` sang thuật toán **đo độ phủ token (subsequence coverage >= 85%)** giúp xanh hóa kiểm thử từ **19/26 Pass lên 26/26 Pass**.
-2.  **Đồng bộ Quota và Bất đối xứng API**:
-    *   Phát hiện các mô hình preview của Gemini dính rate limit cứng 20 requests/ngày trên key Free.
-    *   Cấu hình lại toàn bộ hệ thống chạy trên cặp model Flash-Lite thông minh (`gemini-3.5-flash-lite` cho tutor và `gemini-3.1-flash-lite` cho judge) có hạn ngạch 1500 RPD để chạy mượt mà, tối ưu chi phí (chỉ tốn **~$0.015 USD** cho 1 vòng eval) và tránh tự chấm chéo.
-3.  **Tích hợp Tracing & Script bổ trợ**:
-    *   Viết các script tự động hóa đo lường latency/cost, update report và hỗ trợ chạy thử.
-    *   Tích hợp tracing log đầy đủ lên hệ thống.
+Với tư cách là **SME Lead** của nhóm, tôi chịu trách nhiệm chính về thiết kế ma trận đánh giá, gán nhãn baseline và xây dựng rubric/calibration:
+1.  **Thiết kế Ma trận Coverage & Phủ Scenario**:
+    *   Xác định 3 dimensions cốt lõi (User Intent, Corpus Coverage, Ambiguity & Context) để lọc ra 13 combinations/scenarios đại diện từ 60 tổ hợp ban đầu, đảm bảo tính đại diện và tiết kiệm chi phí.
+    *   Tự tay rewrite và bổ sung các case challenge thực tế lấy từ phản hồi của học viên trên Discord/Q&A, bổ sung tâm lý nôn nóng hoặc lỗi gõ phím để tăng độ khó và tính thực tế cho tập dataset.
+2.  **Đóng vai trò Chuyên gia gán nhãn (Gold Standard baseline)**:
+    *   Tiến hành chấm nhãn độc lập 26 câu test trên dataset v1, đại diện cho góc nhìn sư phạm/SME.
+    *   Đứng ra phân tích và giải quyết 3 case bất đồng nghiêm trọng với Technical Lead (đạt độ đồng thuận 88% ở vòng độc lập), bao gồm việc siết chặt tiêu chí từ chối các cheat request xin code/đáp án (`sc-24`) và phát hiện lỗi hallucination tinh vi khi tutor so sánh các công cụ ngoài bài học (`sc-09`).
+3.  **Thiết kế Rubric & Calibration**:
+    *   Biên soạn bộ rubric nhị phân (Yes/No) chi tiết để dễ dàng chuẩn hóa cho LLM Judge.
+    *   Đóng góp ý kiến đưa 3 ví dụ Near-Miss thực tế dựa trên các ca bất đồng ý kiến chấm tay để tinh chỉnh prompt của LLM Judge ở Vòng 2, giúp nâng độ đồng thuận của AI Judge với chuyên gia từ **65% lên 92%**.
+4.  **Viết Báo cáo PM Report**:
+    *   Đưa ra quyết định HOLD (Chưa ship) dựa trên số liệu thực tế về việc vi phạm Blocker Scope Refusal (cheat request) và đề xuất hướng khắc phục (Prompt engineering thắt chặt quy tắc refusal và Rerun eval).
+
 
 ---
 
@@ -69,7 +72,7 @@ Với tư cách là **Technical Lead** của nhóm, tôi chịu trách nhiệm c
 Để kiểm chứng toàn bộ pipeline của nhóm:
 ```bash
 # 1. Điền API Key vào file .env
-GEMINI_API_KEY=AIzaSyAVfXCQkE0dUqrVhOFDzbY3p0x3tIKtqp0
+GEMINI_API_KEY=your_api_key_here
 
 # 2. Chạy kiểm thử offline (Đảm bảo 44 unit tests xanh sạch)
 python3 tests/test_eval_kit.py

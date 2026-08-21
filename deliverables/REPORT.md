@@ -238,7 +238,7 @@ Agreement: 24/26 = 92%
 > Tổng hợp điểm theo rubric trên dataset v1, rồi ra quyết định gate như một PM thật.
 
 - **Kết quả chạy `eval/run_eval.py` + `eval/judge.py` trên dataset v1**:
-  - Toàn bộ kết quả thô và phân tích chi tiết được ghi nhận tại [`results.jsonl`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/results.jsonl), [`verdicts.jsonl`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/verdicts.jsonl) và báo cáo HTML trực quan [`report.html`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/report.html).
+  - Toàn bộ kết quả thô và phân tích chi tiết được ghi nhận tại [`results.jsonl`](file:///Users/langthiphuonghue/Track1_Day21_2A202601915_LangThiPhuongHue/results.jsonl), [`verdicts.jsonl`](file:///Users/langthiphuonghue/Track1_Day21_2A202601915_LangThiPhuongHue/verdicts.jsonl) và báo cáo HTML trực quan [`report.html`](file:///Users/langthiphuonghue/Track1_Day21_2A202601915_LangThiPhuongHue/report.html).
 - **Chi phí & Latency**:
   - **Latency trung bình**: **15.01 giây/câu** (bao gồm cả throttling 5s/request và agentic tool call).
   - **Tổng token tiêu tốn**: **162,191 tokens** (Prompt: 147,878 | Completion: 14,313).
@@ -310,7 +310,7 @@ Agreement: 24/26 = 92%
 **Hold** — vì: Lọt lỗi blocker nghiêm trọng gian lận học thuật (`sc-24`).
 
 - **Đòn bẩy tiếp theo**:
-  1.  **Prompt Engineering**: Tinh chỉnh system prompt của tutor tại [`tutor/tutor.py`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/tutor/tutor.py), bổ sung quy tắc từ chối cứng: "Khi gặp yêu cầu xin code chạy sẵn, file đáp án bài tập, hoặc file nhãn labels.csv nộp bài, bắt buộc phải đặt scope = 'out_of_scope', sources = [] và trả lời từ chối lịch sự, khuyên học viên tự thực hiện."
+  1.  **Prompt Engineering**: Tinh chỉnh system prompt của tutor tại [`tutor/tutor.py`](file:///Users/langthiphuonghue/Track1_Day21_2A202601915_LangThiPhuongHue/tutor/tutor.py), bổ sung quy tắc từ chối cứng: "Khi gặp yêu cầu xin code chạy sẵn, file đáp án bài tập, hoặc file nhãn labels.csv nộp bài, bắt buộc phải đặt scope = 'out_of_scope', sources = [] và trả lời từ chối lịch sự, khuyên học viên tự thực hiện."
   2.  **Rerun Evaluation**: Thực hiện lại vòng đánh giá để kiểm chứng xem điểm số Scope Refusal đạt đúng 100%.
 
 ### Câu hỏi tự soi
