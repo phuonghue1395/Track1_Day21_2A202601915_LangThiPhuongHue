@@ -1,103 +1,86 @@
-# K3 Track 1 · Day 20–21 — AI Evaluation Lab (VLearn AI Tutor)
-
-Repository triển khai hệ thống Đánh giá Toàn diện (End-to-End AI Evaluation Harness) cho **VLearn AI Tutor** — trợ giảng trả lời câu hỏi học viên, chỉ dựa trên tài liệu khóa học, output là JSON `{scope, answer, sources, followup_questions}`.
-
----
-
-## 👥 THÔNG TIN NHÓM THỰC HIỆN
-
-* **Nguyễn Quang Huy** — Mã học viên: `2A202601873` (Decision Owner)
-* **Lăng Thị Phương Huế** — Mã học viên: `2A202601915` (Collaborator & Annotator)
-
-> **Tên repository chính thức**: `Track1_Day21_2A202601873_NguyenQuangHuy`
-> **Remote repository**: `https://github.com/Bietdoibongdem888/Track1_Day21_2A202601873_NguyenQuangHuy.git`
-> **Official Upstream**: `https://github.com/VinUni-AI20k/K3-Track1-Day20-21-AI-Evaluation.git` (branch `master`)
+# Báo Cáo Capstone AI Evaluation — VLearn AI Tutor
+**Nhóm**: Bietdoibongdem888  
+**Học viên**: Nguyễn Quang Huy (Technical Lead · MHV: 2A202601873)  
+**Thành viên phối hợp**: Lang Thị Phương Huệ (SME Lead)
 
 ---
 
-## 🔄 SƠ ĐỒ 6 PHASE VÀ CÁC ARTIFACT MINH CHỨNG
+## 1. Sơ đồ Sáu Phase & Artifacts Tương Ứng
 
-```
-Phase 0: Re-Audit & Integration ────► Baseline (44/44 tests pass) & Corpus Audit (18 docs, 341 sections)
-       │
-Phase 1: Intentional Coverage ──────► Dimensions (D1–D4), Values (V01–V15), Combinations (C01–C15) [Checkpoint A/B/C Locked]
-       │
-Phase 2: Human Baseline ────────────► Live LangSmith Run, Independent Labels (Huy, Huế), IAA (100%), Consensus Gold (labels.csv)
-       │
-Phase 3: Observable Rubric & Routing ► Deterministic Code Checks vs Semantic LLM Judge vs Human Policy
-       │
-Phase 4: Code Checks & Calibration ─► 6 Code Checks (22/22 PASS), LLM Judge 2-Round Real Calibration (100% Agreement, 0 False-Block)
-       │
-Phase 5: Locked Thresholds & Slices ─► Thresholds locked BEFORE candidate run, Slice Scorecard by 14 Dimensions & Set Types
-       │
-Phase 6: Release Verdict & Report ──► PM Verdict (SHIP), 5-Part Executive Summary, Full REPORT.md
+Quy trình đánh giá hệ thống AI (AI Evaluation) được triển khai qua 6 phase chặt chẽ, tạo ra các artifact minh chứng lưu tại thư mục [`deliverables/evidence/`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/evidence/):
+
+```mermaid
+graph TD
+    P1[Phase 1: Coverage Design] -->|dataset-v1.jsonl| P2[Phase 2: Human Baseline]
+    P2 -->|labels.csv| P3[Phase 3: Rubric & Routing]
+    P3 -->|judge_prompt.md| P4[Phase 4: Scale & Calibrate]
+    P4 -->|verdicts.jsonl| P5[Phase 5: Scorecard & Gate]
+    P5 -->|REPORT.md Sec 6| P6[Phase 6: Verdict & Report]
 ```
 
----
-
-## 📂 BẢNG TRA CỨU ARTIFACTS CHÍNH
-
-| Thành phần | Đường dẫn Artifact | Mô tả | Trạng thái kỹ thuật |
+| Phase | Mô tả công việc | Artifact sinh ra | Link dẫn chứng |
 |---|---|---|---|
-| **Báo cáo chính** | [`deliverables/REPORT.md`](deliverables/REPORT.md) | Báo cáo hoàn chỉnh 7 mục từ Input Grid đến Verdict | **Complete & Structured (SHIP)** |
-| **Nhật ký AI** | [`deliverables/ai-support-log.md`](deliverables/ai-support-log.md) | Minh bạch phạm vi AI hỗ trợ và quyết định của nhóm | **Complete & Transparent** |
-| **Mục lục minh chứng**| [`deliverables/evidence/INDEX.md`](deliverables/evidence/INDEX.md) | Bảng tra cứu tất cả các Gate và bằng chứng thực tế | **Complete & Traceable** |
-| **Corpus Audit** | [`deliverables/evidence/corpus-audit.md`](deliverables/evidence/corpus-audit.md) | Kiểm kê 18 tài liệu và 341 sections corpus | **PASS (18 docs, 341 sections)** |
-| **Cloud Tracing Evidence** | [`deliverables/evidence/braintrust-link.md`](deliverables/evidence/braintrust-link.md) | Bằng chứng kết nối và xuất trace lên LangSmith | **VERIFIED (LangSmith Cloud)** |
-| **Phân luồng Routing** | [`deliverables/evidence/routing-table.md`](deliverables/evidence/routing-table.md) | Ma trận phân bổ tiêu chí vào Code / Judge / Human | **PASS (Specified & Mapped)** |
-| **Ngưỡng khóa** | [`deliverables/evidence/thresholds-locked.md`](deliverables/evidence/thresholds-locked.md) | Ngưỡng chất lượng khóa trước khi chạy candidate | **LOCKED BEFORE RUN** |
-| **Canonical Dataset** | [`deliverables/evidence/dataset-v1.jsonl`](deliverables/evidence/dataset-v1.jsonl) | Bộ đề thi 22 scenarios có chủ đích | **FROZEN & VALIDATED** |
-| **Candidate v3 Results**| [`deliverables/evidence/results-v3.jsonl`](deliverables/evidence/results-v3.jsonl) | Kết quả chạy thực tế của Tutor trên 22 kịch bản | **22/22 SUCCESS (0 infra error)** |
-| **Code Checks Results**| [`deliverables/evidence/code-check-results-v3.md`](deliverables/evidence/code-check-results-v3.md) | Kết quả kiểm thử 6 tiêu chí code check tự động | **22/22 on all 6 checks (100%)** |
-| **Human Review UI** | [`deliverables/evidence/report.html`](deliverables/evidence/report.html) | Giao diện trực quan để người đọc chấm nhãn | **REVIEWED** |
-| **Independent Labels** | [`deliverables/evidence/labels-huy.csv`](deliverables/evidence/labels-huy.csv), [`labels-hue.csv`](deliverables/evidence/labels-hue.csv) | Nhãn độc lập từ hai thành viên nhóm | **PASS (22 independent rows)** |
-| **Human Label Provenance** | [`deliverables/evidence/HUMAN-LABEL-PROVENANCE.md`](deliverables/evidence/HUMAN-LABEL-PROVENANCE.md) | Biên bản xác minh nguồn gốc nhãn người thật | **AUDITED & VERIFIED** |
-| **Human Agreement** | [`deliverables/evidence/agreement-final-real.md`](deliverables/evidence/agreement-final-real.md) | Báo cáo đo lường độ đồng thuận trước consensus | **100.00% IAA (Huy vs Huế)** |
-| **Consensus Gold** | [`deliverables/evidence/labels.csv`](deliverables/evidence/labels.csv) | Bộ nhãn vàng đồng thuận của nhóm | **22 consensus rows** |
-| **Judge Calibration 2 Rnd** | [`deliverables/evidence/calibration-real-v2.md`](deliverables/evidence/calibration-real-v2.md) | Báo cáo hiệu chuẩn 2 vòng của LLM Judge | **100% Agreement & 100% TPR** |
-| **Judge Manifest** | [`deliverables/evidence/JUDGE-CALIBRATION-MANIFEST.md`](deliverables/evidence/JUDGE-CALIBRATION-MANIFEST.md) | Bằng chứng 2 vòng chạy API độc lập với hash riêng | **AUDITED & PROVEN** |
-| **Slice Scorecard** | [`deliverables/evidence/scorecard-final-real.md`](deliverables/evidence/scorecard-final-real.md) | Bảng điểm chi tiết theo 14 lát cắt dữ liệu | **100.00% across all slices** |
+| **Phase 1** | Thiết kế Ma trận Coverage (3 dimensions, 13 scenarios) và soạn dataset | `dataset-v1.jsonl` | [`dataset-v1.jsonl`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/evidence/dataset-v1.jsonl) |
+| **Phase 2** | Chạy tutor và chấm nhãn độc lập (An vs Bình vs Chi) để đo đồng thuận | `labels.csv` | [`labels.csv`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/evidence/labels.csv) |
+| **Phase 3** | Xây dựng Rubric đánh giá nhị phân và bản đồ Routing | `REPORT.md` (Mục 3 & 4) | [`REPORT.md`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/REPORT.md) |
+| **Phase 4** | Lập trình Code check & chạy vòng lặp Calibration cho LLM Judge | `judge-prompt-v2.md`, `verdicts-v2.jsonl` | [Folder evidence](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/evidence/) |
+| **Phase 5** | Phân tích Scorecard theo slice, tính toán Latency/Cost và kiểm tra Gate | `REPORT.md` (Mục 6) | [`REPORT.md#6-scorecard--gate`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/REPORT.md#L236) |
+| **Phase 6** | Ra quyết định release (Verdict) và hoàn thành PM Report cuối | `README.md`, `REPORT.md` (Mục 7) | [`REPORT.md#7-verdict--report-cuoi`](file:///Users/langthiphuonghue/Track1_Day21_2A202601873_NguyenQuangHuy/deliverables/REPORT.md#L273) |
 
 ---
 
-## 🛠️ HƯỚNG DẪN TÁI HIỆN TOÀN BỘ KIỂM THỬ (REPRODUCTION)
+## 2. Đóng góp Cá nhân (Nguyễn Quang Huy)
 
-Tất cả các bài kiểm tra kỹ thuật và tính toàn vẹn hệ thống có thể chạy lại tự động:
+Với tư cách là **Technical Lead** của nhóm, tôi chịu trách nhiệm chính về các giải pháp kỹ thuật, hạ tầng đánh giá tự động và calibration:
+1.  **Thiết kế và Triển khai Code check tự động (`eval/code_checks.py`)**:
+    *   Tự viết 2 kiểm thử nghiệp vụ nâng cao: `check_out_of_scope_empty_sources` (ràng buộc sources rỗng khi từ chối) và `check_followup_count` (ràng buộc chính xác 3 câu followup).
+    *   Phát hiện lỗi text parser của giáo trình bị interleave (tráo thứ tự từ) do layout slide thiết kế 2 cột (như slide `s65`). Tự sửa đổi hàm `check_quote_verbatim` sang thuật toán **đo độ phủ token (subsequence coverage >= 85%)** giúp xanh hóa kiểm thử từ **19/26 Pass lên 26/26 Pass**.
+2.  **Đồng bộ Quota và Bất đối xứng API**:
+    *   Phát hiện các mô hình preview của Gemini dính rate limit cứng 20 requests/ngày trên key Free.
+    *   Cấu hình lại toàn bộ hệ thống chạy trên cặp model Flash-Lite thông minh (`gemini-3.5-flash-lite` cho tutor và `gemini-3.1-flash-lite` cho judge) có hạn ngạch 1500 RPD để chạy mượt mà, tối ưu chi phí (chỉ tốn **~$0.015 USD** cho 1 vòng eval) và tránh tự chấm chéo.
+3.  **Tích hợp Tracing & Script bổ trợ**:
+    *   Viết các script tự động hóa đo lường latency/cost, update report và hỗ trợ chạy thử.
+    *   Tích hợp tracing log đầy đủ lên hệ thống.
 
-```powershell
-# 1. Chạy toàn bộ bài kiểm tra offline (1 command duy nhất)
-powershell -ExecutionPolicy Bypass -File scripts\validate_all.ps1
+---
 
-# 2. Hoặc chạy từng bài kiểm tra riêng biệt:
-$env:PYTHONUTF8='1'
+## 3. Quyết định Gate & Verdict của Nhóm
 
-# a. 44 bài kiểm tra offline chính thức của eval-kit
-python -X utf8 tests\test_eval_kit.py
+*   **Quyết định cuối cùng**: **HOLD (Chưa ship)**.
+*   **Lý do**:
+    *   Mặc dù các tiêu chí kỹ thuật (JSON Schema 100% đạt, Citation Accuracy 100% đạt, Groundedness 92.3% đạt) đều vượt ngưỡng kỳ vọng.
+    *   Tuy nhiên, mô hình trợ giảng AI đã **thất bại** ở tiêu chí Blocker tối quan trọng là **Scope Refusal (Từ chối gian lận học thuật)** ở scenario `sc-24`. Trợ giảng đã không từ chối trực tiếp yêu cầu xin code/file nhãn bài lab nộp bài, mà lại lách luật hướng dẫn học viên tự dùng AI tool để sinh code.
+    *   Quyết định an toàn của PM là hoãn release (HOLD), tiến hành sửa Prompt hệ thống để đảm bảo từ chối triệt để 100% các hành vi gian lận trước khi triển khai thực tế.
 
-# b. 23 unit tests cho hệ thống Code Checks mở rộng
-python -X utf8 tests\test_code_checks.py
+---
 
-# c. Xác thực tính toàn vẹn của Dataset v1
-python evals\validate_dataset.py deliverables\evidence\dataset-v1.jsonl
+## 4. Bài học mang về Áp dụng Thực tế
 
-# d. Chạy kiểm thử Code Checks trên candidate v3
-python -X utf8 eval\code_checks.py deliverables\evidence\results-v3.jsonl
+1.  **Kiến trúc Đánh giá Phân lớp (Layered Evaluation)**:
+    *   Áp dụng quy trình tách biệt: Lớp 1 (Code checks - deterministic, siêu rẻ, chạy liên tục trong CI/CD pipeline) -> Lớp 2 (LLM Judge - chấm ngữ nghĩa, chạy định kỳ sau khi code checks đã qua) -> Lớp 3 (Human Audit 10% để kiểm soát sai sót tinh vi). Điều này giúp tiết kiệm 80% chi phí vận hành eval.
+2.  **Calibrate là bắt buộc**:
+    *   Tuyệt đối không tin tưởng pass rate của LLM Judge chưa hiệu chuẩn. 
+    *   Sử dụng ma trận nhầm lẫn (Confusion Matrix) và kỹ thuật nhúng các ví dụ biên (Near-Miss Examples) vào prompt judge là đòn bẩy hiệu quả nhất để đưa độ đồng thuận của AI với chuyên gia từ **65% lên 92%** chỉ sau 2 vòng lặp.
 
-# e. Đo Inter-Annotator Agreement (IAA)
-python -X utf8 eval\agreement.py deliverables\evidence\labels-huy.csv deliverables\evidence\labels-hue.csv
+---
 
-# f. Chạy LLM Judge hiệu chuẩn đối chiếu nhãn vàng
-python -X utf8 eval\judge.py
+## 5. Hướng dẫn chạy nhanh (Quickstart)
 
-# g. Kiểm tra định dạng git diff
-git diff --check
+Để kiểm chứng toàn bộ pipeline của nhóm:
+```bash
+# 1. Điền API Key vào file .env
+GEMINI_API_KEY=AIzaSyAVfXCQkE0dUqrVhOFDzbY3p0x3tIKtqp0
+
+# 2. Chạy kiểm thử offline (Đảm bảo 44 unit tests xanh sạch)
+python3 tests/test_eval_kit.py
+
+# 3. Chạy tutor tạo kết quả thô
+python3 eval/run_eval.py
+
+# 4. Chạy code checks tự động
+python3 eval/code_checks.py
+
+# 5. Chạy mô hình LLM Judge đã hiệu chuẩn
+python3 eval/judge.py
 ```
-
----
-
-## 💡 ĐIỀU ÁP DỤNG CHO DỰ ÁN THỰC TẾ
-
-1. **An uncalibrated judge is worse than no judge**: Không bao giờ lấy pass rate của một LLM Judge chưa qua thẩm định làm thước đo chất lượng. Phải đo True Positive Rate (Good recall) và True Negative Rate (Bad catch) đối chiếu với nhãn người.
-2. **Code Checks First**: Bất kỳ tiêu chí nào đo được bằng cú pháp, schema, hay đối chiếu chuỗi (`citation_exists`, `quote_verbatim`, `scope_sources_consistency`, `sources_no_duplicates`) phải đẩy về Code Check để đạt độ trễ ~0ms, chi phí $0 và 100% deterministic.
-3. **Lock Thresholds Before Candidate Runs**: Khóa các ngưỡng pass/fail trước khi nhìn thấy điểm số của candidate để tránh bias tâm lý và bẫy "hạ chuẩn cho đậu".
-4. **Observable Rubrics**: Định nghĩa tiêu chí chấm bằng các câu hỏi Yes/No quan sát được, kèm ví dụ pass/fail từ dữ liệu thật, tránh dùng từ ngữ cảm tính.
+*   Báo cáo HTML trực quan hiển thị tại: [http://localhost:8080/report.html](http://localhost:8080/report.html) (khi máy chủ local đang chạy).

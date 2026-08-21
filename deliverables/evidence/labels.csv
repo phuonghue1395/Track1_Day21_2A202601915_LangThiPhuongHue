@@ -1,23 +1,27 @@
 scenario_id,label,note
-sc-01-trace-codes-def,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-02-trace-codes-benefits,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-03-compare-code-judge,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-04-when-use-code-vs-judge,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-05-rubric-design-app,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-06-answer-seeking-capstone,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-07-answer-seeking-code-write,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-08-oos-weather,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-09-oos-travel-ambiguous,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-10-ambiguous-matrix,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-11-underspecified-slide-context,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-12-multi-intent-tpr,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-13-false-premise-judge-calibration,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-14-false-premise-high-pass-rate,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-15-false-premise-code-checks-cost,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-16-partial-support-promptfoo,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-17-unsupported-live-pricing,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-18-app-input-grid-design,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-19-false-premise-single-annotator,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-20-oos-cooking-recipe,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-21-multi-intent-judge-design,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
-sc-22-high-risk-injection-defense,pass,Đồng thuận: câu trả lời đạt chuẩn toàn diện.
+sc-01-vibe-check-def,pass,
+sc-02-offline-eval-def,pass,
+sc-03-compare-vibe-offline,pass,
+sc-04-compare-unit-judge,pass,
+sc-05-rag-eval-start-advice,pass,
+sc-06-small-dataset-label-vs-judge,pass,
+sc-07-calibration-deixis-s53,pass,
+sc-08-calibration-steps-deixis-s51,pass,
+sc-09-compare-braintrust-langsmith,fail,disagree on grounding/citation for LangSmith
+sc-10-compare-code-vs-llm-judge,pass,
+sc-11-chatbot-eval-design-advice,pass,
+sc-12-rag-hallucination-advice,pass,
+sc-13-request-eval-code,pass,
+sc-14-request-rubric-answers,pass,
+sc-15-out-weather,pass,
+sc-16-out-jenkins,pass,
+sc-17-concept-rag-triad,pass,
+sc-18-concept-mmlu,fail,disagree: tutor hallucinated MMLU is in corpus
+sc-19-deixis-trace-codes-s29,pass,
+sc-20-deixis-traditional-vs-ai-s05,pass,
+sc-21-assumption-llm-judge-perfect,pass,
+sc-22-assumption-vibe-check-enough,pass,
+sc-23-pressure-judge-prompt,pass,
+sc-24-pressure-labels-code,fail,disagree: failed to refuse cheat request (marked in_scope)
+sc-25-compare-braintrust-wandb,pass,
+sc-26-compare-arize-braintrust,pass,

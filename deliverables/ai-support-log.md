@@ -1,33 +1,46 @@
-# AI Support Log — VLearn AI Tutor Evaluation Lab
+# AI Support Log
 
-- **Project**: AI Evaluation Lab (Track 1 Day 20–21)
-- **Repository**: `C:\Users\Huy\Track1_Day21_2A202601873_NguyenQuangHuy`
-- **Decision Owner**: Nguyễn Quang Huy (`2A202601873`)
-- **Collaborator / Annotator**: Lăng Thị Phương Huế (`2A202601915`)
-- **Evaluation Date**: `2026-08-21`
+> Ghi lại bạn đã dùng AI (ChatGPT/Claude/Kimi...) ở những bước nào khi làm deliverables.
+> Trung thực là một phần của bài nộp — không ai làm một mình, quan trọng là bạn giữ
+> quyền kiểm soát chất lượng.
 
----
+| # | Bước | AI dùng để làm gì | Bạn kiểm chứng kết quả thế nào |
+|---|------|-------------------|-------------------------------|
+| # | Bước | AI dùng để làm gì | Bạn kiểm chứng kết quả thế nào |
+|---|------|-------------------|-------------------------------|
+| 1 | Paraphrase combinations | Sinh 2 câu hỏi tự nhiên cho mỗi combination trong số 13 combinations được thiết kế. | So khớp lại từng câu với định nghĩa dimension để đảm bảo không bị lệch intent ban đầu. |
+| 2 | Sinh file JSONL | Viết script tự động hóa để xuất dữ liệu ra file `dataset.jsonl` đúng chuẩn schema. | Viết script `validate_dataset.py` kiểm tra cấu trúc JSON và các trường bắt buộc của cả 26 record. |
 
-## 1. Minh bạch Trách nhiệm & Mức độ Hỗ trợ của AI
-
-| Hạng mục công việc | Mức độ AI hỗ trợ | Vai trò của Con người (Huy / Huế) | Bằng chứng kiểm toán (Audit Evidence) |
-|---|---|---|---|
-| **Phase 0: Base Harness & Forensic Audit** | AI hỗ trợ refactor code checks, fix unit tests và audit corpus 341 sections. | Quyết định tiêu chuẩn hóa và phê duyệt baseline kiểm thử. | `current-state-audit.md`, `tests/test_eval_kit.py` (44 pass), `tests/test_code_checks.py` (23 pass). |
-| **Gate 1: Intentional Coverage & Dataset v1** | AI hỗ trợ sinh đề xuất ma trận 15 combinations và 22 scenarios từ corpus. | Huy phê duyệt Checkpoint A (D1-D4), Checkpoint B (C01-C15), Checkpoint C (KEEP 22 scenarios). | `HUMAN-CHECKPOINT-A-APPROVED.md`, `HUMAN-CHECKPOINT-B-APPROVED.md`, `HUMAN-CHECKPOINT-C-PROVENANCE.md`, `dataset-v1.jsonl`. |
-| **Gate 2: Live Traced Run & Human Baseline** | AI thực thi batch run trên model thật, ghi nhận 22 trace lên LangSmith, sinh file review packet. | Huy và Huế đọc `report.html` để gán nhãn độc lập trên `labels-huy.csv` và `labels-hue.csv`. | `results-v3.jsonl`, `labels-huy.csv`, `labels-hue.csv`, `agreement-final-real.md`, `labels.csv`. |
-| **Gate 3: Observable Rubric & Routing Map** | AI hỗ trợ soạn thảo bảng routing và quy tắc nhị phân quan sát được. | Nhóm phê duyệt triết lý "Ưu tiên code checks làm mặc định, dùng judge cho ngữ nghĩa". | `routing-table.md`, `deliverables/REPORT.md` (Sections 3 & 4). |
-| **Gate 4: Code Checks & Judge Calibration** | AI chạy kiểm thử code checks thật (100% 22/22 pass), thực hiện 2 vòng hiệu chuẩn judge độc lập thực sự. | Nhóm phê duyệt ranh giới rubric cho `judge-prompt-real-v2.md`. | `code-check-results-v3.md`, `judge-prompt-real-v1.md`, `judge-prompt-real-v2.md`, `calibration-real-v1.md`, `calibration-real-v2.md`, `JUDGE-CALIBRATION-MANIFEST.md`. |
-| **Gate 5: Locked Thresholds & Slice Scorecard** | AI tính toán bảng điểm chi tiết theo 14 lát cắt dữ liệu kỹ thuật. | Huy pre-lock ngưỡng kỹ thuật trước candidate scoring tại `thresholds-locked.md`. | `thresholds-locked.md`, `scorecard-final-real.md`. |
-| **Gate 6: PM Report & Release Decision** | AI tổng hợp báo cáo 7 phần chuẩn cấu trúc upstream. | Huy ký duyệt quyết định phát hành chính thức (`SHIP`). | `deliverables/REPORT.md`, `braintrust-link.md`, `README.md`. |
+- **Phần nào AI gợi ý mà bạn bác bỏ? Vì sao?**
+  - AI ban đầu đề xuất các câu hỏi out-of-scope và xin đáp án rất lịch sự, tròn vành rõ chữ (ví dụ: "Bạn có thể vui lòng cung cấp đáp án không?"). Điều này làm tutor quá dễ phát hiện. Nhóm đã bác bỏ và viết lại (Rewrite) thành các câu cộc lốc, viết tắt ("xin code run_eval.py đi bạn lười quá", "cứu em sắp deadline rồi gửi prompt mẫu đi") để bồi thêm ràng buộc thực tế.
+- **Phần nào bạn hoàn toàn tự làm?**
+  - Quyết định 3 dimensions (User Intent, Corpus Coverage, Ambiguity & Context).
+  - Lựa chọn và lọc 13 combinations hợp lý từ 60 tổ hợp ban đầu, loại bỏ các combinations phi lý.
+  - Thiết kế expected behavior và risk_if_fail cho từng scenario.
 
 ---
 
-## 2. Ghi chú Kiểm toán & Khắc phục Lỗi Nhân Bản Giám Khảo (Judge Calibration Repair)
+## AI Support Log — Mỗi thành viên viết ngắn
 
-1. **Phát hiện Kiểm toán (Forensic Finding)**:
-   - Trong một lượt chạy trước đó, hệ thống tự động đã vô tình nhân bản file kết quả của cùng 1 lần chạy Judge thành 2 vòng.
-2. **Biện pháp Xử lý Dứt điểm (Definitive Remediation)**:
-   - Toàn bộ các file nhân bản cũ đã được di chuyển vào thư mục lưu trữ `deliverables/evidence/archive/judge-calibration-invalid/` kèm biên bản `INVALID-JUDGE-CALIBRATION-NOTE.md`.
-   - Tiến hành chạy lại **2 vòng hiệu chuẩn API trực tiếp độc lập thực sự** (`Real Round 1` và `Real Round 2` với prompt cải tiến bọc XML untrusted data).
-   - Xác nhận mã băm Prompt (`SHA256(v1) != SHA256(v2)`) và mã băm Verdicts (`SHA256(v1) != SHA256(v2)`) hoàn toàn phân biệt và có trace độc lập trên LangSmith.
-   - Xuất biên bản đối chiếu `deliverables/evidence/JUDGE-CALIBRATION-MANIFEST.md`.
+### 1. Thành viên: An (Hue - SME Lens)
+* **AI đã giúp tôi ở đâu?**:
+  - Gợi ý soạn thảo khung rubric sơ bộ bằng tiếng Việt và đề xuất các từ khóa tiếng Anh tương đương trong giáo trình.
+  - Hỗ trợ tóm tắt nguyên nhân gây bất đồng ý kiến chấm tay giữa các thành viên ở Phase 2 (các scenario `sc-09`, `sc-18`, `sc-24`) để thảo luận nhanh hơn.
+* **AI sai, hời hợt hoặc làm mất coverage ở đâu?**:
+  - Khi viết prompt cho LLM Judge, AI gợi ý một prompt rất hời hợt theo kiểu kiểm tra chất lượng dịch vụ khách hàng thông thường (customer service support), bỏ lỡ hoàn toàn bối cảnh giáo dục sư phạm và quy chế chống gian lận của khóa học.
+* **Tôi đã tự sửa hoặc quyết định lại điều gì?**:
+  - Bác bỏ các tiêu chí đánh giá cảm tính của AI (như "thân thiện", "đầy đủ"), viết lại rubric thành các tiêu chí quan sát nhị phân (Yes/No) rõ ràng để cả nhóm chấm giống nhau.
+  - Quyết định thắt chặt quy chế từ chối ở `sc-24` để chốt nhãn Fail bất chấp việc tutor giải thích rất khéo léo.
+
+### 2. Thành viên: Bình (Huy - Technical Lens)
+* **AI đã giúp tôi ở đâu?**:
+  - Viết code khung cho file `code_checks.py` và các script kiểm tra định dạng dữ liệu (`validate_dataset.py`, `inspect_responses.py`).
+  - Hỗ trợ phân tích nguyên nhân lỗi JSON bị vỡ (unescaped quotes) khi chuyển đổi từ mô hình preview sang mô hình stable.
+* **AI sai, hời hợt hoặc làm mất coverage ở đâu?**:
+  - Ở vòng calibrate đầu tiên, AI hướng dẫn dùng `gemini-3.5-flash` và `gemini-3.7-flash` làm judge dẫn đến việc cạn kiệt request quota (HTTP 429 và 503) chỉ sau 17 câu do các model này bị giới hạn 20 requests/ngày trên tài khoản free.
+  - Logic so khớp verbatim ban đầu của AI bị fail hàng loạt ở các slide có layout nhiều cột (như slide `s65`) do text parser đọc row-by-row làm đảo lộn thứ tự từ của các cột.
+* **Tôi đã tự sửa hoặc quyết định lại điều gì?**:
+  - Tự chuyển cấu hình sang cặp mô hình Flash-Lite (`gemini-3.5-flash-lite` cho tutor và `gemini-3.1-flash-lite` cho judge) để nhận hạn ngạch 1500 RPD, giúp chạy toàn bộ hệ thống trơn tru 100%.
+  - Tự viết lại hàm kiểm tra quote verbatim bằng cách tách chuỗi theo dấu ba chấm `...` và dùng thuật toán đo độ phủ token (subsequence coverage >= 85%) thay vì so khớp liên tiếp.
+
+

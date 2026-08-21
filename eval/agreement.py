@@ -18,12 +18,10 @@ def read_labels(path):
                 for r in csv.DictReader(f) if r.get("scenario_id") and r.get("label", "").strip()}
 
 
-import os
-
 def main(paths):
     if len(paths) < 2:
         raise SystemExit("Cần ít nhất 2 file: python3 eval/agreement.py labels-a.csv labels-b.csv")
-    members = {os.path.basename(p).replace("labels-", "").replace(".csv", ""): read_labels(p)
+    members = {p.split("/")[-1].replace("labels-", "").replace(".csv", ""): read_labels(p)
                for p in paths}
     common = set.intersection(*[set(m) for m in members.values()])
     if not common:

@@ -10,7 +10,6 @@ calls, tokens, cost trên app.braintrust.dev / smith.langchain.com). Không có 
 bỏ qua lặng lẽ. Chi tiết trong README.md mục Tracing.
 """
 import json, os, sys, time
-from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 # tutor.py nằm ở tutor/ (khu vực sản phẩm) — thêm vào sys.path để import được
@@ -38,10 +37,6 @@ def read_jsonl(path):
     with open(path, encoding="utf-8") as f:
         return [json.loads(line) for line in f if line.strip()]
 
-def get_hcm_iso_time():
-    tz = timezone(timedelta(hours=7))
-    return datetime.now(tz).isoformat()
-
 def main():
     dataset_path = sys.argv[1] if len(sys.argv) > 1 else "dataset.jsonl"
     if not os.path.exists(dataset_path):
@@ -54,36 +49,15 @@ def main():
                  "  OPENAI_API_KEY=sk-...     (cho model openai/*)\n"
                  "rồi chạy lại." % tutor.MODEL)
 
-    existing = {}
-    if os.path.exists("results.jsonl"):
-        for r in read_jsonl("results.jsonl"):
-            if r.get("scenario_id") and "output" in r and not r.get("error") and not r.get("output", {}).get("_parse_error"):
-                existing[r["scenario_id"]] = r
-        if existing:
-            print(f"Đã có sẵn {len(existing)} scenarios hợp lệ trong results.jsonl (sẽ tiếp tục các câu còn lại)")
-
     rows = read_jsonl(dataset_path)
     print("Dataset: %d câu | model: %s" % (len(rows), tutor.MODEL))
     results, total_cost, t_start = [], 0.0, time.time()
 
     for i, row in enumerate(rows, 1):
         q = row["input"]
-        sid = row.get("scenario_id") or row.get("id") or "row-%d" % i
-        if sid in existing:
-            print("[%d/%d] %s ... [đã có sẵn kết quả hợp lệ]" % (i, len(rows), q[:60]))
-            results.append(existing[sid])
-            continue
-
         print("[%d/%d] %s ... " % (i, len(rows), q[:60]), end="", flush=True)
-        rec = {
-            "scenario_id": sid,
-            "input": q,
-            "expected_scope": row.get("expected_scope"),
-            "note": row.get("note"),
-            "metadata": row.get("metadata", {}),
-            "model_evaluated": tutor.MODEL,
-            "timestamp": get_hcm_iso_time(),
-        }
+        rec = {"scenario_id": row.get("scenario_id") or row.get("id") or "row-%d" % i,
+               "input": q}
         slide = (row.get("metadata") or {}).get("slide")
         if slide:
             rec["slide"] = slide  # giữ lại để judge/report chấm theo đúng bối cảnh
@@ -111,7 +85,8 @@ def main():
             rec.update(error=str(e))
             print("LỖI: %s" % e)
         results.append(rec)
-        time.sleep(3)  # khoảng dừng an toàn giữa các câu hỏi để tránh rate limit
+        # Sleep 1 second between questions
+        time.sleep(1.0)
 
     with open("results.jsonl", "w", encoding="utf-8") as f:
         for rec in results:

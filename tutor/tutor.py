@@ -27,13 +27,13 @@ Quy trình bắt buộc cho mỗi lượt trả lời:
 1. Luôn gọi kb_search TRƯỚC KHI trả lời (trừ khi câu hỏi rõ ràng ngoài phạm vi corpus). Có thể gọi nhiều lần với các truy vấn khác nhau nếu kết quả đầu chưa đủ.
 2. Chỉ trả lời dựa trên nội dung kb_search trả về trong lượt hiện tại. Nếu corpus không có thông tin để trả lời, xem đó là câu hỏi out_of_scope.
 3. Trích nguồn nghiêm ngặt:
-- Mỗi nguồn trong "sources" phải gồm "doc_id" (một trong các doc_id hợp lệ), "section_id" (slug mục hoặc mã slide), và "quote" là một đoạn trích NGUYÊN VĂN LIÊN TỤC (verbatim contiguous substring, tối đa ~40 từ) từ trường text của kết quả kb_search. TUYỆT ĐỐI KHÔNG dùng dấu ba chấm (...), không tự ý sửa đổi từ ngữ/dấu câu, không chèn ký tự lạ (như ->) hay nối các câu rời rạc.
+- Mỗi nguồn trong "sources" phải gồm "doc_id" (một trong 4 doc_id ở trên), "section_id" (slug mục hoặc mã slide), và "quote" là một đoạn trích NGUYÊN VĂN ngắn (tối đa ~40 từ) từ kết quả kb_search.
 - Không suy diễn section_id nếu không chắc — chỉ dùng section rõ ràng chứa đoạn quote.
 - Không liệt kê nguồn mà bạn không thực sự dùng trong câu trả lời.
 4. Phong cách trợ giảng:
 - Trả lời bằng tiếng Việt, rõ ràng, súc tích, đúng vai trò giảng dạy cho học viên PM/PO.
 - Giải thích vừa đủ để học viên hiểu bản chất, có thể kèm ví dụ nhỏ lấy từ corpus.
-- "followup_questions" phải là một mảng gồm ĐÚNG 3 câu hỏi dạng string (mảng 3 chuỗi ký tự, không dùng object) gợi mở giúp học viên đào sâu nội dung bài học (ví dụ: so sánh khái niệm, áp dụng vào tình huống, mở rộng sang mục liên quan). Không hỏi xã giao, không hỏi lệch chủ đề.
+- "followup_questions" phải gồm đúng 3 câu hỏi gợi mở giúp học viên đào sâu nội dung bài học (ví dụ: so sánh khái niệm, áp dụng vào tình huống, mở rộng sang mục liên quan). Không hỏi xã giao, không hỏi lệch chủ đề.
 
 Output contract — bắt buộc:
 - Câu trả lời cuối cùng của bạn phải là MỘT object JSON hợp lệ duy nhất, không bọc trong markdown fence, không có text nào khác.
@@ -44,8 +44,8 @@ Output contract — bắt buộc:
   "sources": [{ "doc_id": string, "section_id": string, "quote": string }],
   "followup_questions": [string, string, string]
 }
-- Với câu hỏi trong phạm vi: "scope" = "in_scope", "sources" có ít nhất 1 nguồn, "followup_questions" có đúng 3 câu dạng string.
-- Với câu hỏi ngoài phạm vi corpus: "scope" = "out_of_scope", "sources" = [], trong "answer" hãy từ chối khéo léo và gợi ý 1-2 chủ đề liên quan có trong corpus, "followup_questions" vẫn gồm đúng 3 câu dạng string dẫn học viên quay lại nội dung bài học.
+- Với câu hỏi trong phạm vi: "scope" = "in_scope", "sources" có ít nhất 1 nguồn, "followup_questions" có đúng 3 câu.
+- Với câu hỏi ngoài phạm vi corpus: "scope" = "out_of_scope", "sources" = [], trong "answer" hãy từ chối khéo léo và gợi ý 1-2 chủ đề liên quan có trong corpus, "followup_questions" vẫn gồm 3 câu hỏi dẫn học viên quay lại nội dung bài học.
 
 Lưu ý:
 - Chỉ trả lời câu hỏi mới nhất của người dùng.
@@ -206,88 +206,17 @@ def chat(messages, model=None, temperature=0, max_tokens=800, tools=None):
         payload["tool_choice"] = "auto"
     t0 = time.time()
     last_err = None
-    max_retries = 6
-    for attempt in range(max_retries):
+    for attempt in range(3):  # gateway/provider thỉnh thoảng trả body JSON bị cắt ngang (200 nhưng không parse được) — retry
+        time.sleep(5.0)  # Sleep to avoid Gemini free tier RPM limits (15 requests/min)
+        resp = requests.post(base_url + "/chat/completions", json=payload, timeout=120,
+                             headers={"Authorization": "Bearer " + key})
+        resp.raise_for_status()
         try:
-            resp = requests.post(base_url + "/chat/completions", json=payload, timeout=120,
-                                 headers={"Authorization": "Bearer " + key})
-            if resp.status_code in (429, 500, 502, 503, 504):
-                wait_time = (attempt + 1) * 6
-                time.sleep(wait_time)
-                continue
-            resp.raise_for_status()
             return resp.json(), time.time() - t0
-        except (requests.exceptions.RequestException, ValueError) as e:
+        except ValueError as e:
             last_err = e
-            time.sleep((attempt + 1) * 4)
-    raise RuntimeError(f"Provider request failed sau {max_retries} lần thử: {last_err}")
-
-def ground_verbatim_quote(doc_id, section_id, raw_quote, sections_map):
-    """Đảm bảo quote là chuỗi ký tự liên tục, nguyên văn từ nội dung section."""
-    text = sections_map.get((doc_id, section_id))
-    if not text or not raw_quote:
-        return raw_quote
-    if raw_quote in text:
-        return raw_quote
-    clean = raw_quote.strip(' .\"\'\n\r\t')
-    if clean in text:
-        return clean
-    # Nếu quote chứa dấu ba chấm hoặc mũi tên cắt ghép, lấy đoạn dài nhất có trong text
-    parts = [p.strip(' .\"\'\n\r\t') for p in re.split(r'\s*\.\.\.\s*|\s*…\s*|\s*->\s*', raw_quote) if len(p.strip()) > 10]
-    for p in sorted(parts, key=len, reverse=True):
-        if p in text:
-            return p
-    # Nếu không, trích xuất câu/dòng có overlap từ khoá cao nhất trong section
-    sentences = [s.strip() for s in re.split(r'[\n\.\?\!]+', text) if len(s.strip()) > 10]
-    q_words = set(clean.lower().split())
-    best_sent, best_score = raw_quote, 0
-    for sent in sentences:
-        s_words = set(sent.lower().split())
-        overlap = len(q_words & s_words)
-        if overlap > best_score:
-            best_score = overlap
-            best_sent = sent
-    if best_score >= 3 and best_sent in text:
-        return best_sent
-    return raw_quote
-
-def normalize_tutor_output(out, sections=None):
-    """Chuẩn hoá cấu trúc output: đảm bảo followup_questions là list[str] và sources có quote nguyên văn."""
-    if not isinstance(out, dict) or out.get("_parse_error"):
-        return out
-
-    # 1. Chuẩn hoá followup_questions
-    fqs = out.get("followup_questions")
-    if isinstance(fqs, list):
-        norm_fqs = []
-        for q in fqs:
-            if isinstance(q, dict):
-                val = q.get("text") or q.get("question") or q.get("content") or str(q)
-                norm_fqs.append(str(val).strip())
-            elif isinstance(q, str):
-                norm_fqs.append(q.strip())
-            elif q is not None:
-                norm_fqs.append(str(q).strip())
-        out["followup_questions"] = norm_fqs
-
-    # 2. Chuẩn hoá sources: deduplicate & quote grounding
-    srcs = out.get("sources")
-    if isinstance(srcs, list) and sections:
-        sec_map = {(s["doc_id"], s["section_id"]): s["text"] for s in sections}
-        dedup_srcs = []
-        seen_keys = set()
-        for s in srcs:
-            if isinstance(s, dict) and "doc_id" in s and "section_id" in s:
-                key = (s["doc_id"], s["section_id"])
-                if key in seen_keys:
-                    continue
-                seen_keys.add(key)
-                q = s.get("quote") or s.get("text") or ""
-                s["quote"] = ground_verbatim_quote(s["doc_id"], s["section_id"], q, sec_map)
-                s.pop("text", None)
-                dedup_srcs.append(s)
-        out["sources"] = dedup_srcs
-    return out
+            time.sleep(1)
+    raise RuntimeError(f"Provider trả body không parse được JSON sau 3 lần thử: {last_err}")
 
 def parse_json_content(content):
     """Model đôi khi bọc JSON trong ``` fence — lột ra trước khi parse.
@@ -377,7 +306,6 @@ def call_tutor(question, slide=None, max_steps=6):
             finish = choice.get("finish_reason")
             content = msg.get("content") or ""
             out = parse_json_content(content)
-            out = normalize_tutor_output(out, corpus_sections)
             if finish == "length":
                 out.setdefault("_truncated", True)
             meta = {"raw_content": content, "usage": usage_total,
